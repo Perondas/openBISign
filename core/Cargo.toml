@@ -1,0 +1,12 @@
+[package]
+name = "biSignCore"
+version = "0.1.0"
+edition = "2021"
+
+authors = ["Perondas <thomas@perondas.dev>"]
+
+[dependencies]
+anyhow = "1.0.95"
+rsa = "0.9.7"
+sha1 = "0.10.6"
+binrw = "0.14.1"
