@@ -2,17 +2,47 @@ use anyhow::{Context, Error, Result};
 use binrw::{BinRead, BinWrite, NullString};
 use rsa::{BigUint, RsaPrivateKey};
 use std::io::{Read, Seek};
+use rsa::traits::{PrivateKeyParts, PublicKeyParts};
+use crate::pbo::test::hash_pbo;
+use crate::sign::signature::BiSignature;
+use crate::sign::version::BISignVersion::V3;
 
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub struct BIPrivateKey {
-    authority: String,
+    pub authority: String,
     key: RsaPrivateKey,
+    length: u32,
 }
 
 impl BIPrivateKey{
     pub fn from_reader<R: Read + Seek>(reader: &mut R) -> Result<BIPrivateKey> {
         let key = BinaryBiPrivateKey::read(reader).context("Failed to read private key")?;
         key.try_into()
+    }
+
+    pub fn sign_pbo<R: Read + Seek>(&self, reader: &mut R) -> Result<BiSignature> {
+        let (hash1, hash2, hash3) = hash_pbo(reader, V3, self.length)?;
+        
+        let d = self.key.d();
+        let n = self.key.n();
+        
+
+        let sig1 = hash1.modpow(d, n);
+        let sig2 = hash2.modpow(d, n);
+        let sig3 = hash3.modpow(d, n);
+        
+        Ok(
+            BiSignature {
+                authority: self.authority.clone(),
+                version: V3,
+                length: self.length,
+                exponent: self.key.e().clone(),
+                n: self.key.n().clone(),
+                sig1,
+                sig2,
+                sig3,
+            }
+        )
     }
 }
 
@@ -60,6 +90,7 @@ impl TryFrom<BinaryBiPrivateKey> for BIPrivateKey {
                     BigUint::from_bytes_le(&value.q),
                 ],
             )?,
+            length: value.key_length,
         })
     }
 }

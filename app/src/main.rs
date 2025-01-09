@@ -1,38 +1,82 @@
 use anyhow::{Context, Result};
-use biSignCore::keys::private_key::BIPrivateKey;
-use biSignCore::keys::public_key::BIPublicKey;
-use biSignCore::sign::signature::BiSignature;
-use clap::Parser;
+use indicatif::ProgressBar;
 use std::fs::File;
+use std::path::{Path, PathBuf};
+use clap::Parser;
+use biSignCore::keys::private_key::BIPrivateKey;
+use crate::args::Args;
 
 mod args;
 
 fn main() -> Result<()> {
-    let mut file = File::open("data/fp_blended.bikey").unwrap();
+    let Args { pbo_path, private_key_path } = Args::parse();
 
-    let key = BIPublicKey::from_reader(&mut file).unwrap();
+    if !private_key_path.exists() {
+        return Err(anyhow::anyhow!("Private key path does not exist"));
+    }
 
-    //println!("{:?}", key);
+    if !private_key_path.is_file() {
+        return Err(anyhow::anyhow!("Private key path is not a file"));
+    }
 
-    let mut file = File::open("data/fp_blended.biprivatekey").unwrap();
+    let mut key_file = File::open(&private_key_path).context("Failed to open private key")?;
 
-    let key = BIPrivateKey::from_reader(&mut file).unwrap();
+    let private_key = BIPrivateKey::from_reader(&mut key_file).context("Failed to read private key")?;
+    let authority = &private_key.authority;
 
-    //println!("{:?}", key);
+    println!("Signing with authority: {}", authority);
 
-    let mut file = File::open("data/min_rf_air_c.pbo.fp_blended.bisign").unwrap();
+    let pbo_paths = glob::glob(&pbo_path).context("Failed to resolve pbo path")?.filter_map(
+        |p| match p {
+            Ok(p) if p.extension().map(|p| p == "pbo").unwrap_or_default() => Some(p),
+            Ok(_) => None,
+            Err(e) => {
+                eprintln!("Failed to resolve pbo path: {:?}", e);
+                None
+            }
+        },
+    ).collect::<Vec<PathBuf>>();
 
-    let sig = BiSignature::from_reader(&mut file).unwrap();
+    if pbo_paths.is_empty() {
+        eprintln!("No PBOs found to sign");
+        return Ok(());
+    }
 
-    println!("{:?}", sig);
-    
-    let mut nSig = File::create("data/min_rf_air_c.pbo.fp_blended.bisign2").unwrap();
-    sig.to_writer(&mut nSig).context("Failed to write signature")?;
-    
-    let mut nSig = File::open("data/min_rf_air_c.pbo.fp_blended.bisign2").unwrap();
-    let sig2 = BiSignature::from_reader(&mut nSig).unwrap();
-    
-    println!("{:?}", sig2);
-    
+    println!("Found {} PBOs to sign", pbo_paths.len());
+
+    let pb = ProgressBar::new(pbo_paths.len() as u64);
+
+    let k2 = private_key.clone();
+    let a2 = authority.clone();
+    let pb2 = pb.clone();
+    rayon::scope(move |s| {
+        for pbo_path in pbo_paths {
+            let key = k2.clone();
+            let authority = a2.clone();
+            let pb = pb2.clone();
+            s.spawn(move |_| {
+                if let Err(e) = sign_pbo(&pbo_path, &key, &authority) {
+                    pb.println(format!("Failed to sign {:?}: {:?}", pbo_path, e));
+                }
+                pb.inc(1);
+            });
+        }
+    });
+
+    pb.println("Done");
+    pb.finish();
+
+    Ok(())
+}
+
+fn sign_pbo(pbo_path: &Path, key: &BIPrivateKey, authority: &str) -> Result<()> {
+    let mut file = File::open(pbo_path)?;
+
+    let signature = key.sign_pbo(&mut file)?;
+
+    let signature_path = pbo_path.with_extension(format!("pbo.{}.bisign", authority));
+
+    let mut signature_file = File::create(&signature_path)?;
+    signature.to_writer(&mut signature_file)?;
     Ok(())
 }

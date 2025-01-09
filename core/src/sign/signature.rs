@@ -4,24 +4,26 @@ use binrw::{BinRead, BinWrite, NullString};
 use rsa::BigUint;
 use std::io::{Read, Seek, Write};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct BiSignature {
-    version: BISignVersion,
-    authority: String,
-    length: u32,
-    exponent: BigUint,
-    n: BigUint,
-    sig1: BigUint,
-    sig2: BigUint,
-    sig3: BigUint,
+    pub(crate) version: BISignVersion,
+    pub(crate) authority: String,
+    pub(crate) length: u32,
+    pub(crate) exponent: BigUint,
+    pub(crate) n: BigUint,
+    pub(crate) sig1: BigUint,
+    pub(crate) sig2: BigUint,
+    pub(crate) sig3: BigUint,
 }
+
+
 
 impl BiSignature {
     pub fn from_reader<R: Read + Seek>(reader: &mut R) -> Result<Self> {
         let binary = BinaryBiSignature::read(reader).context("Failed to read signature")?;
         Ok(binary.into())
     }
-    
+
     pub fn to_writer<W: Write + Seek>(&self, writer: &mut W) -> Result<()> {
         let binary: BinaryBiSignature = self.into();
         binary.write(writer).context("Failed to write signature")?;
@@ -34,8 +36,8 @@ impl BiSignature {
 struct BinaryBiSignature {
     authority: NullString,
     body_len: u32,
-    #[br(magic = b"\x06\x02\x00\x00\x00\x24\x00\x00", assert(sig_type == *b"RSA1"))]
-    #[bw(magic = b"\x06\x02\x00\x00\x00\x24\x00\x00")]
+    #[brw(magic = b"\x06\x02\x00\x00\x00\x24\x00\x00")]
+    #[br(assert(sig_type == *b"RSA1"))]
     sig_type: [u8; 4],
     key_length: u32,
     #[br(count = body_len - 4 * 4 - (key_length / 8))]
@@ -79,7 +81,6 @@ impl From<BinaryBiSignature> for BiSignature {
 
 impl From<&BiSignature> for BinaryBiSignature {
     fn from(value: &BiSignature) -> Self {
-        println!("value: {:?}", value.version);
         Self {
             authority: NullString::from(value.authority.clone()),
             body_len: 20 + value.n.to_bytes_le().len() as u32,

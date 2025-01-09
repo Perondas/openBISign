@@ -6,10 +6,6 @@ edition = "2021"
 authors = ["Perondas <thomas@perondas.dev>"]
 
 [dependencies]
-hemtt-pbo = { git = "https://github.com/perondas/hemtt" }
-hemtt-signing = { git = "https://github.com/perondas/hemtt" }
-
-
 biSignCore = { path = "../core" }
 indicatif = "0.17.9"
 rayon = "1.10.0"
