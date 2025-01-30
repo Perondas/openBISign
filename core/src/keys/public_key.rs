@@ -20,6 +20,7 @@ impl BIPublicKey {
 
 #[derive(BinRead, Debug)]
 #[brw(little, assert(body_len == key_length / 8 + 20))]
+#[allow(dead_code)]
 struct BinaryBiPublicKey {
     authority: NullString,
     // The length of the body in bytes

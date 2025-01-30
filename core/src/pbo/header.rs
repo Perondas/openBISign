@@ -1,6 +1,8 @@
 use crate::pbo::mime::Mime;
-use binrw::{BinRead, BinWrite, NullString};
+use binrw::{BinRead, NullString};
 
+// We allow dead code as its part of the binary file format
+#[allow(dead_code)]
 #[derive(Debug, BinRead)]
 #[brw(little)]
 pub(crate) struct BinaryHeader {

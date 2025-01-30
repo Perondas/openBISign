@@ -76,7 +76,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8c3c1a368f70d6cf7302d78f8f7093da241fb8e8807c05cc9e51a125895a6d5b"
 
 [[package]]
-name = "biSignCore"
+name = "bi_sign_core"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -434,11 +434,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1261fe7e33c73b354eab43b1273a57c8f967d0391e80353e51f764ac02cf6775"
 
 [[package]]
-name = "openBISign"
+name = "open_bi_sign"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "biSignCore",
+ "bi_sign_core",
  "clap",
  "glob",
  "indicatif",

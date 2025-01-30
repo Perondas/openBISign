@@ -1,15 +1,22 @@
+#![ warn(clippy::pedantic)]
+
+use crate::args::Args;
 use anyhow::{Context, Result};
+use bi_sign_core::keys::private_key::BIPrivateKey;
+use bi_sign_core::pbo::pbo_handle::PBOHandle;
+use bi_sign_core::sign::version::BISignVersion::V3;
+use clap::Parser;
 use indicatif::ProgressBar;
 use std::fs::File;
 use std::path::{Path, PathBuf};
-use clap::Parser;
-use biSignCore::keys::private_key::BIPrivateKey;
-use crate::args::Args;
 
 mod args;
 
 fn main() -> Result<()> {
-    let Args { pbo_path, private_key_path } = Args::parse();
+    let Args {
+        pbo_path,
+        private_key_path,
+    } = Args::parse();
 
     if !private_key_path.exists() {
         return Err(anyhow::anyhow!("Private key path does not exist"));
@@ -21,21 +28,23 @@ fn main() -> Result<()> {
 
     let mut key_file = File::open(&private_key_path).context("Failed to open private key")?;
 
-    let private_key = BIPrivateKey::from_reader(&mut key_file).context("Failed to read private key")?;
+    let private_key =
+        BIPrivateKey::from_reader(&mut key_file).context("Failed to read private key")?;
     let authority = &private_key.authority;
 
     println!("Signing with authority: {}", authority);
 
-    let pbo_paths = glob::glob(&pbo_path).context("Failed to resolve pbo path")?.filter_map(
-        |p| match p {
+    let pbo_paths = glob::glob(&pbo_path)
+        .context("Failed to resolve pbo path")?
+        .filter_map(|p| match p {
             Ok(p) if p.extension().map(|p| p == "pbo").unwrap_or_default() => Some(p),
             Ok(_) => None,
             Err(e) => {
                 eprintln!("Failed to resolve pbo path: {:?}", e);
                 None
             }
-        },
-    ).collect::<Vec<PathBuf>>();
+        })
+        .collect::<Vec<PathBuf>>();
 
     if pbo_paths.is_empty() {
         eprintln!("No PBOs found to sign");
@@ -70,9 +79,9 @@ fn main() -> Result<()> {
 }
 
 fn sign_pbo(pbo_path: &Path, key: &BIPrivateKey, authority: &str) -> Result<()> {
-    let mut file = File::open(pbo_path)?;
+    let mut pbo = PBOHandle::open_file(pbo_path)?;
 
-    let signature = key.sign_pbo(&mut file)?;
+    let signature = key.sign_pbo(&mut pbo, V3)?;
 
     let signature_path = pbo_path.with_extension(format!("pbo.{}.bisign", authority));
 

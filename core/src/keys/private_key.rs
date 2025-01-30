@@ -1,53 +1,52 @@
+use crate::pbo::pbo_handle::PBOHandle;
+use crate::sign::signature::BiSignature;
 use anyhow::{Context, Error, Result};
-use binrw::{BinRead, BinWrite, NullString};
+use binrw::{BinRead, NullString};
+use rsa::traits::{PrivateKeyParts, PublicKeyParts};
 use rsa::{BigUint, RsaPrivateKey};
 use std::io::{Read, Seek};
-use rsa::traits::{PrivateKeyParts, PublicKeyParts};
-use crate::pbo::test::hash_pbo;
-use crate::sign::signature::BiSignature;
-use crate::sign::version::BISignVersion::V3;
+use crate::pbo::pbo_hash::PBOHash;
+use crate::sign::version::BISignVersion;
 
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct BIPrivateKey {
     pub authority: String,
     key: RsaPrivateKey,
     length: u32,
 }
 
-impl BIPrivateKey{
+impl BIPrivateKey {
     pub fn from_reader<R: Read + Seek>(reader: &mut R) -> Result<BIPrivateKey> {
         let key = BinaryBiPrivateKey::read(reader).context("Failed to read private key")?;
         key.try_into()
     }
 
-    pub fn sign_pbo<R: Read + Seek>(&self, reader: &mut R) -> Result<BiSignature> {
-        let (hash1, hash2, hash3) = hash_pbo(reader, V3, self.length)?;
-        
+    pub fn sign_pbo(&self, handle: &mut PBOHandle, version: BISignVersion) -> Result<BiSignature> {
+        let PBOHash(hash1, hash2, hash3) = handle.generate_hash(version, self.length)?;
+
         let d = self.key.d();
         let n = self.key.n();
-        
 
         let sig1 = hash1.modpow(d, n);
         let sig2 = hash2.modpow(d, n);
         let sig3 = hash3.modpow(d, n);
-        
-        Ok(
-            BiSignature {
-                authority: self.authority.clone(),
-                version: V3,
-                length: self.length,
-                exponent: self.key.e().clone(),
-                n: self.key.n().clone(),
-                sig1,
-                sig2,
-                sig3,
-            }
-        )
+
+        Ok(BiSignature {
+            authority: self.authority.clone(),
+            version,
+            length: self.length,
+            exponent: self.key.e().clone(),
+            n: self.key.n().clone(),
+            sig1,
+            sig2,
+            sig3,
+        })
     }
 }
 
 #[derive(BinRead, Debug)]
 #[brw(little, assert(body_len == key_length / 16 * 9 + 20))]
+#[allow(dead_code)]
 struct BinaryBiPrivateKey {
     authority: NullString,
     // The length of the body in bytes

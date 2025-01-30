@@ -1,12 +1,12 @@
 [package]
-name = "openBISign"
+name = "open_bi_sign"
 version = "0.1.0"
 edition = "2021"
 
 authors = ["Perondas <thomas@perondas.dev>"]
 
 [dependencies]
-biSignCore = { path = "../core" }
+bi_sign_core = { path = "../core" }
 indicatif = "0.17.9"
 rayon = "1.10.0"
 clap = { version = "4.5.23", features = ["derive"] }
