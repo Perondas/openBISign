@@ -1,11 +1,11 @@
-use crate::pbo::pbo_handle::PBOHandle;
+use crate::pbo::handle::PBOHandle;
 use crate::sign::signature::BiSignature;
 use anyhow::{Context, Error, Result};
 use binrw::{BinRead, NullString};
 use rsa::traits::{PrivateKeyParts, PublicKeyParts};
 use rsa::{BigUint, RsaPrivateKey};
 use std::io::{Read, Seek};
-use crate::pbo::pbo_hash::PBOHash;
+use crate::pbo::hash::PBOHash;
 use crate::sign::version::BISignVersion;
 
 #[derive(Debug, Clone)]

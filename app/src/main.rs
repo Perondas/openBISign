@@ -1,9 +1,7 @@
-#![ warn(clippy::pedantic)]
-
 use crate::args::Args;
 use anyhow::{Context, Result};
 use bi_sign_core::keys::private_key::BIPrivateKey;
-use bi_sign_core::pbo::pbo_handle::PBOHandle;
+use bi_sign_core::pbo::handle::PBOHandle;
 use bi_sign_core::sign::version::BISignVersion::V3;
 use clap::Parser;
 use indicatif::ProgressBar;
@@ -32,15 +30,15 @@ fn main() -> Result<()> {
         BIPrivateKey::from_reader(&mut key_file).context("Failed to read private key")?;
     let authority = &private_key.authority;
 
-    println!("Signing with authority: {}", authority);
+    println!("Signing with authority: {authority}");
 
     let pbo_paths = glob::glob(&pbo_path)
         .context("Failed to resolve pbo path")?
         .filter_map(|p| match p {
-            Ok(p) if p.extension().map(|p| p == "pbo").unwrap_or_default() => Some(p),
+            Ok(p) if p.extension().is_some_and(|p| p == "pbo") => Some(p),
             Ok(_) => None,
             Err(e) => {
-                eprintln!("Failed to resolve pbo path: {:?}", e);
+                eprintln!("Failed to resolve pbo path: {e:?}");
                 None
             }
         })
@@ -65,7 +63,7 @@ fn main() -> Result<()> {
             let pb = pb2.clone();
             s.spawn(move |_| {
                 if let Err(e) = sign_pbo(&pbo_path, &key, &authority) {
-                    pb.println(format!("Failed to sign {:?}: {:?}", pbo_path, e));
+                    pb.println(format!("Failed to sign {pbo_path:?}: {e:?}"));
                 }
                 pb.inc(1);
             });
@@ -83,7 +81,7 @@ fn sign_pbo(pbo_path: &Path, key: &BIPrivateKey, authority: &str) -> Result<()> 
 
     let signature = key.sign_pbo(&mut pbo, V3)?;
 
-    let signature_path = pbo_path.with_extension(format!("pbo.{}.bisign", authority));
+    let signature_path = pbo_path.with_extension(format!("pbo.{authority}.bisign"));
 
     let mut signature_file = File::create(&signature_path)?;
     signature.to_writer(&mut signature_file)?;

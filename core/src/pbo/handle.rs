@@ -1,7 +1,7 @@
 use crate::pbo::checksum::Checksum;
 use crate::pbo::header::BinaryHeader;
 use crate::pbo::mime::Mime;
-use crate::pbo::pbo_hash::PBOHash;
+use crate::pbo::hash::PBOHash;
 use crate::sign::version::BISignVersion;
 use anyhow::ensure;
 use anyhow::Result;
@@ -59,7 +59,7 @@ impl PBOHandle {
 
         // Skip past the blob + 1
         let blob_start = handle.stream_position()?;
-        let blob_size = files.iter().map(|f| f.size).sum::<u32>() as i64;
+        let blob_size = i64::from(files.iter().map(|f| f.size).sum::<u32>());
 
         handle.seek(Current(blob_size + 1))?;
 
@@ -104,7 +104,7 @@ impl PBOHandle {
         }
 
         if nothing {
-            file_hasher.update(version.nothing())
+            file_hasher.update(version.nothing());
         }
 
         let file_hash = file_hasher.finalize().to_vec();
@@ -141,7 +141,7 @@ impl PBOHandle {
     }
 }
 
-pub fn pad_hash(hash: &[u8], size: usize) -> BigUint {
+#[must_use] pub fn pad_hash(hash: &[u8], size: usize) -> BigUint {
     let mut vec: Vec<u8> = vec![0, 1];
     vec.resize(size - 36, 255);
     vec.extend(b"\x00\x30\x21\x30\x09\x06\x05\x2b");

@@ -1,5 +1,5 @@
-pub mod pbo_hash;
-pub mod pbo_handle;
+pub mod hash;
+pub mod handle;
 pub mod header;
 pub mod mime;
 pub mod checksum;
