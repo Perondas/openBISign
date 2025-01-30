@@ -1,6 +1,5 @@
-use std::path::PathBuf;
 use clap::Parser;
-
+use std::path::PathBuf;
 
 /// Pbo signing utility
 #[derive(Parser, Debug)]
@@ -8,7 +7,7 @@ use clap::Parser;
 pub struct Args {
     /// Path to the private key
     pub private_key_path: PathBuf,
-    
+
     /// Path to the pbo files to be signed. Supports wildcards
     pub pbo_path: String,
 }

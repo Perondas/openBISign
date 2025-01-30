@@ -1,12 +1,16 @@
 use crate::args::Args;
 use anyhow::{Context, Result};
-use bi_sign_core::keys::private_key::BIPrivateKey;
-use bi_sign_core::pbo::handle::PBOHandle;
-use bi_sign_core::sign::version::BISignVersion::V3;
+use bi_sign_core::{
+    pbo::handle::PBOHandle,
+    keys::private_key::BIPrivateKey,
+    sign::version::BISignVersion::V3
+};
 use clap::Parser;
 use indicatif::ProgressBar;
-use std::fs::File;
-use std::path::{Path, PathBuf};
+use std::{
+    fs::File,
+    path::{Path, PathBuf}
+};
 
 mod args;
 
@@ -70,9 +74,9 @@ fn main() -> Result<()> {
         }
     });
 
-    pb.println("Done");
     pb.finish();
-
+    println!("Done signing PBOs");
+    
     Ok(())
 }
 

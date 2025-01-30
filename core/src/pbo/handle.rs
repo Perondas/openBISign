@@ -1,17 +1,28 @@
-use crate::pbo::checksum::Checksum;
-use crate::pbo::header::BinaryHeader;
-use crate::pbo::mime::Mime;
-use crate::pbo::hash::PBOHash;
-use crate::sign::version::BISignVersion;
-use anyhow::ensure;
-use anyhow::Result;
+use crate::{
+    pbo::{
+        header::BinaryHeader,
+        hash::PBOHash,
+        checksum::Checksum,
+        mime::Mime
+    },
+    sign::version::BISignVersion
+};
+use anyhow::{
+    ensure,
+    Result
+};
 use binrw::{BinRead, NullString};
 use rsa::BigUint;
 use sha1::{Digest, Sha1};
-use std::collections::HashMap;
-use std::io::SeekFrom::Current;
-use std::io::{Read, Seek};
-use std::path::Path;
+use std::{
+    collections::HashMap,
+    io::{
+        SeekFrom::Current,
+        Read,
+        Seek
+    },
+    path::Path
+};
 
 #[derive(Debug)]
 #[allow(dead_code)]
@@ -141,7 +152,8 @@ impl PBOHandle {
     }
 }
 
-#[must_use] pub fn pad_hash(hash: &[u8], size: usize) -> BigUint {
+#[must_use]
+pub fn pad_hash(hash: &[u8], size: usize) -> BigUint {
     let mut vec: Vec<u8> = vec![0, 1];
     vec.resize(size - 36, 255);
     vec.extend(b"\x00\x30\x21\x30\x09\x06\x05\x2b");

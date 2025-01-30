@@ -1,8 +1,14 @@
-use anyhow::Result;
-use anyhow::{Context, Error};
+use anyhow::{
+    Result,
+    Context,
+    Error
+};
 use binrw::{BinRead, NullString};
-use rsa::traits::PublicKeyParts;
-use rsa::{BigUint, RsaPublicKey};
+use rsa::{
+    traits::PublicKeyParts,
+    BigUint,
+    RsaPublicKey
+};
 use std::io::{Read, Seek};
 
 #[derive(Debug)]

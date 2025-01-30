@@ -1,12 +1,21 @@
-use crate::pbo::handle::PBOHandle;
-use crate::sign::signature::BiSignature;
+use crate::{
+    pbo::{
+        handle::PBOHandle,
+        hash::PBOHash
+    },
+    sign::{
+        signature::BiSignature,
+        version::BISignVersion
+    }
+};
 use anyhow::{Context, Error, Result};
 use binrw::{BinRead, NullString};
-use rsa::traits::{PrivateKeyParts, PublicKeyParts};
-use rsa::{BigUint, RsaPrivateKey};
+use rsa::{
+    traits::{PrivateKeyParts, PublicKeyParts},
+    BigUint,
+    RsaPrivateKey
+};
 use std::io::{Read, Seek};
-use crate::pbo::hash::PBOHash;
-use crate::sign::version::BISignVersion;
 
 #[derive(Debug, Clone)]
 pub struct BIPrivateKey {

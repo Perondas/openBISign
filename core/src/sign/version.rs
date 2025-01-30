@@ -1,6 +1,8 @@
-use std::ffi::OsStr;
-use std::path::PathBuf;
 use binrw::{BinRead, BinWrite};
+use std::{
+    ffi::OsStr,
+    path::PathBuf
+};
 
 /// Version of BI's signature
 #[derive(PartialEq, Eq, Copy, Clone, Debug, Default, BinRead, BinWrite)]
@@ -64,7 +66,7 @@ impl BISignVersion {
                 OsStr::new("wrp"),
                 OsStr::new("wss"),
             ]
-                .contains(&ext),
+            .contains(&ext),
             Self::V3 => [
                 OsStr::new("bikb"),
                 OsStr::new("cfg"),
@@ -78,7 +80,7 @@ impl BISignVersion {
                 OsStr::new("sqm"),
                 OsStr::new("sqs"),
             ]
-                .contains(&ext),
+            .contains(&ext),
         }
     }
 

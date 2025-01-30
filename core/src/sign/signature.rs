@@ -16,8 +16,6 @@ pub struct BiSignature {
     pub(crate) sig3: BigUint,
 }
 
-
-
 impl BiSignature {
     pub fn from_reader<R: Read + Seek>(reader: &mut R) -> Result<Self> {
         let binary = BinaryBiSignature::read(reader).context("Failed to read signature")?;
