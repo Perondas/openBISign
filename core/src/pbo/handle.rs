@@ -1,27 +1,15 @@
 use crate::{
-    pbo::{
-        header::BinaryHeader,
-        hash::PBOHash,
-        checksum::Checksum,
-        mime::Mime
-    },
-    sign::version::BISignVersion
+    pbo::{checksum::Checksum, hash::PBOHash, header::BinaryHeader, mime::Mime},
+    sign::version::BISignVersion,
 };
-use anyhow::{
-    ensure,
-    Result
-};
+use anyhow::{ensure, Result};
 use binrw::{BinRead, NullString};
 use rsa::BigUint;
 use sha1::{Digest, Sha1};
 use std::{
     collections::HashMap,
-    io::{
-        SeekFrom::Current,
-        Read,
-        Seek
-    },
-    path::Path
+    io::{Read, Seek, SeekFrom::Current},
+    path::Path,
 };
 
 #[derive(Debug)]

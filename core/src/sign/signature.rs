@@ -1,3 +1,4 @@
+use crate::keys::authority::Authority;
 use crate::sign::version::BISignVersion;
 use anyhow::{Context, Result};
 use binrw::{BinRead, BinWrite, NullString};
@@ -7,7 +8,7 @@ use std::io::{Read, Seek, Write};
 #[derive(Debug, PartialEq)]
 pub struct BiSignature {
     pub(crate) version: BISignVersion,
-    pub(crate) authority: String,
+    pub(crate) authority: Authority,
     pub(crate) length: u32,
     pub(crate) exponent: BigUint,
     pub(crate) n: BigUint,
@@ -19,7 +20,7 @@ pub struct BiSignature {
 impl BiSignature {
     pub fn from_reader<R: Read + Seek>(reader: &mut R) -> Result<Self> {
         let binary = BinaryBiSignature::read(reader).context("Failed to read signature")?;
-        Ok(binary.into())
+        binary.try_into()
     }
 
     pub fn to_writer<W: Write + Seek>(&self, writer: &mut W) -> Result<()> {
@@ -62,10 +63,12 @@ struct BinaryBiSignature {
     sig3: Vec<u8>,
 }
 
-impl From<BinaryBiSignature> for BiSignature {
-    fn from(binary: BinaryBiSignature) -> Self {
-        Self {
-            authority: binary.authority.to_string(),
+impl TryFrom<BinaryBiSignature> for BiSignature {
+    type Error = anyhow::Error;
+
+    fn try_from(binary: BinaryBiSignature) -> Result<Self, Self::Error> {
+        Ok(Self {
+            authority: Authority::try_new(binary.authority.to_string())?,
             length: binary.key_length,
             exponent: BigUint::from_bytes_le(&binary.exponent),
             n: BigUint::from_bytes_le(&binary.n),
@@ -73,14 +76,14 @@ impl From<BinaryBiSignature> for BiSignature {
             sig2: BigUint::from_bytes_le(&binary.sig2),
             sig3: BigUint::from_bytes_le(&binary.sig3),
             version: binary.sign_version,
-        }
+        })
     }
 }
 
 impl From<&BiSignature> for BinaryBiSignature {
     fn from(value: &BiSignature) -> Self {
         Self {
-            authority: NullString::from(value.authority.clone()),
+            authority: NullString::from(value.authority.clone().into_inner()),
             body_len: 20 + value.n.to_bytes_le().len() as u32,
             sig_type: *b"RSA1",
             key_length: value.length,
