@@ -1,13 +1,19 @@
-use clap::Parser;
-use std::path::PathBuf;
+use crate::commands::gen_key::GenKeyCommandArgs;
+use crate::commands::sign::SignCommandArgs;
+use crate::commands::verify::VerifyCommandArgs;
+use clap::{Parser, Subcommand};
 
 /// Pbo signing utility
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 pub struct Args {
-    /// Path to the private key
-    pub private_key_path: PathBuf,
+    #[clap(subcommand)]
+    pub command: AppSubcommand,
+}
 
-    /// Path to the pbo files to be signed. Supports wildcards
-    pub pbo_path: String,
+#[derive(Debug, Subcommand)]
+pub enum AppSubcommand {
+    Sign(SignCommandArgs),
+    Verify(VerifyCommandArgs),
+    GenKey(GenKeyCommandArgs),
 }
