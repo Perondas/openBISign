@@ -31,9 +31,11 @@ pub fn verify_command(args: VerifyCommandArgs) -> Result<()> {
     } = args;
     check_is_dir!(checked_dir, keys_dir);
 
+    let mut all_passed = true;
+
     let keys = get_all_keys(&keys_dir)?;
 
-    let pbo_files = get_all_pbos(&checked_dir)?;
+    let pbo_files = get_pbos_and_signatures(&checked_dir)?;
 
     for (path, signatures) in pbo_files {
         let mut pbo = PBOHandle::open_file(&path)?;
@@ -43,7 +45,7 @@ pub fn verify_command(args: VerifyCommandArgs) -> Result<()> {
                 Some(key) => key,
                 None => {
                     eprintln!(
-                        "No key found for authority: {}, skipping verification.",
+                        "No key found for authority: {}, skipping verification",
                         authority
                     );
                     continue;
@@ -54,6 +56,7 @@ pub fn verify_command(args: VerifyCommandArgs) -> Result<()> {
             let sig = BiSignature::from_reader(&mut sig_file)?;
 
             if !key.verify_signature(&mut pbo, &sig)? {
+                all_passed = false;
                 eprintln!(
                     "Signature verification failed for PBO: {}, authority: {}",
                     path.display(),
@@ -63,7 +66,11 @@ pub fn verify_command(args: VerifyCommandArgs) -> Result<()> {
         }
     }
 
-    Ok(())
+    if all_passed {
+        Ok(())
+    } else {
+        Err(anyhow!("Some PBOs failed verification."))
+    }
 }
 
 fn get_all_keys(keys_dir: &PathBuf) -> Result<HashMap<Authority, BIPublicKey>> {
@@ -101,8 +108,10 @@ fn get_all_keys(keys_dir: &PathBuf) -> Result<HashMap<Authority, BIPublicKey>> {
     Ok(keys)
 }
 
-fn get_all_pbos(checked_dir: &PathBuf) -> Result<Vec<(PathBuf, Vec<(Authority, PathBuf)>)>> {
-    let mut pbo_files = Vec::new();
+fn get_pbos_and_signatures(
+    checked_dir: &PathBuf,
+) -> Result<Vec<(PathBuf, Vec<(Authority, PathBuf)>)>> {
+    let mut result = Vec::new();
 
     let entries = std::fs::read_dir(checked_dir)?.filter_map(Result::ok);
 
@@ -144,8 +153,8 @@ fn get_all_pbos(checked_dir: &PathBuf) -> Result<Vec<(PathBuf, Vec<(Authority, P
             continue;
         }
 
-        pbo_files.push((pbo_path, signatures));
+        result.push((pbo_path, signatures));
     }
 
-    Ok(pbo_files)
+    Ok(result)
 }

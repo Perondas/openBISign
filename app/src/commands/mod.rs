@@ -1,4 +1,4 @@
-pub mod sign;
 pub mod gen_key;
-pub mod verify;
 pub mod macros;
+pub mod sign;
+pub mod verify;

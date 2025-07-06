@@ -1,8 +1,5 @@
 use binrw::{BinRead, BinWrite};
-use std::{
-    ffi::OsStr,
-    path::PathBuf
-};
+use std::{ffi::OsStr, path::PathBuf};
 
 /// Version of BI's signature
 #[derive(PartialEq, Eq, Copy, Clone, Debug, Default, BinRead, BinWrite)]
@@ -84,7 +81,6 @@ impl BISignVersion {
         }
     }
 
-    #[must_use]
     /// Get the nothing string for the version
     pub const fn nothing(&self) -> &str {
         match self {

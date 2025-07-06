@@ -1,9 +1,9 @@
 use crate::args::{AppSubcommand, Args};
+use crate::commands::gen_key::gen_key_command;
 use crate::commands::sign::sign_command;
+use crate::commands::verify::verify_command;
 use anyhow::Result;
 use clap::Parser;
-use crate::commands::gen_key::gen_key_command;
-use crate::commands::verify::verify_command;
 
 mod args;
 mod commands;

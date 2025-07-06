@@ -134,12 +134,11 @@ impl TryFrom<BinaryBiPrivateKey> for BIPrivateKey {
 
 impl From<&BIPrivateKey> for BinaryBiPrivateKey {
     fn from(value: &BIPrivateKey) -> Self {
-
         println!("Converting BIPrivateKey to BinaryBi, {:#?}", value.key.e());
 
         let x = BinaryBiPrivateKey {
             authority: NullString::from(value.authority.clone().into_inner()),
-            body_len: value.length  / 16 * 9 + 20,
+            body_len: value.length / 16 * 9 + 20,
             sig_type: *b"RSA2",
             key_length: value.length,
             exponent: value.key.e().to_bytes_le(),

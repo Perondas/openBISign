@@ -14,11 +14,10 @@ macro_rules! check_is_file {
                 $x.display()
             ));
         }
-        
+
         check_is_file!($($xs),+);
     };
 }
-
 
 pub(crate) use check_is_file;
 
@@ -26,7 +25,7 @@ macro_rules! check_is_dir {
     ($x:expr) => {
         if !$x.exists() || !$x.is_dir() {
             return Err(anyhow::anyhow!(
-                "Path '{}' does not exist or is not a file",
+                "Path '{}' does not exist or is not a directory",
                 $x.display()
             ));
         }
@@ -34,7 +33,7 @@ macro_rules! check_is_dir {
     ($x:expr, $($xs:expr),+) => {
         if !$x.exists() || !$x.is_dir() {
             return Err(anyhow::anyhow!(
-                "Path '{}' does not exist or is not a file",
+                "Path '{}' does not exist or is not a directory",
                 $x.display()
             ));
         }
@@ -42,6 +41,5 @@ macro_rules! check_is_dir {
         check_is_dir!($($xs),+);
     };
 }
-
 
 pub(crate) use check_is_dir;

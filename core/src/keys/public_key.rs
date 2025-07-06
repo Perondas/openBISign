@@ -43,9 +43,7 @@ impl BIPublicKey {
         let h2 = sig.sig2.modpow(e, n);
         let h3 = sig.sig3.modpow(e, n);
 
-        Ok(
-            h1 == hash1 && h2 == hash2 && h3 == hash3
-        )
+        Ok(h1 == hash1 && h2 == hash2 && h3 == hash3)
     }
 }
 
@@ -98,4 +96,3 @@ impl From<&BIPublicKey> for BinaryBiPublicKey {
         }
     }
 }
-

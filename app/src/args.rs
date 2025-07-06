@@ -1,7 +1,7 @@
 use crate::commands::gen_key::GenKeyCommandArgs;
 use crate::commands::sign::SignCommandArgs;
-use clap::{Parser, Subcommand};
 use crate::commands::verify::VerifyCommandArgs;
+use clap::{Parser, Subcommand};
 
 /// Pbo signing utility
 #[derive(Parser, Debug)]
