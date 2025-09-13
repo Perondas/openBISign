@@ -1,6 +1,6 @@
-use bi_sign_core::keys::authority::Authority;
-use bi_sign_core::keys::private_key::BIPrivateKey;
-use bi_sign_core::keys::public_key::BIPublicKey;
+use bi_fs_rs::keys::authority::Authority;
+use bi_fs_rs::keys::private_key::BIPrivateKey;
+use bi_fs_rs::keys::public_key::BIPublicKey;
 use clap::Args;
 
 #[derive(Args, Debug)]

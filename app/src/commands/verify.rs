@@ -1,9 +1,9 @@
 use crate::commands::macros::check_is_dir;
 use anyhow::{anyhow, Result};
-use bi_sign_core::keys::authority::Authority;
-use bi_sign_core::keys::public_key::BIPublicKey;
-use bi_sign_core::pbo::handle::PBOHandle;
-use bi_sign_core::sign::signature::BiSignature;
+use bi_fs_rs::keys::authority::Authority;
+use bi_fs_rs::keys::public_key::BIPublicKey;
+use bi_fs_rs::pbo::handle::PBOHandle;
+use bi_fs_rs::sign::signature::BiSignature;
 use clap::Args;
 use regex::Regex;
 use std::collections::HashMap;

@@ -1,8 +1,8 @@
 use crate::commands::macros::check_is_file;
 use anyhow::Context;
-use bi_sign_core::keys::private_key::BIPrivateKey;
-use bi_sign_core::pbo::handle::PBOHandle;
-use bi_sign_core::sign::version::BISignVersion::V3;
+use bi_fs_rs::keys::private_key::BIPrivateKey;
+use bi_fs_rs::pbo::handle::PBOHandle;
+use bi_fs_rs::sign::version::BISignVersion::V3;
 use clap::Args;
 use std::fs::File;
 use std::path::PathBuf;

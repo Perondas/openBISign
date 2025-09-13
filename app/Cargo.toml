@@ -6,7 +6,7 @@ edition = "2021"
 authors = ["Perondas <thomas@perondas.dev>"]
 
 [dependencies]
-bi_sign_core = { path = "../core" }
+bi_fs_rs = { path = "../biFsRs" }
 clap = { version = "4.5.23", features = ["derive"] }
 anyhow = "1.0.95"
 regex = "1.11.1"

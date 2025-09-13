@@ -1,0 +1,3 @@
+[submodule "biFsRs"]
+	path = biFsRs
+	url = git@github.com:Perondas/bi_fs_rs.git
