@@ -1,6 +1,6 @@
 use crate::keys::authority::Authority;
 use crate::pbo::handle::PBOHandle;
-use crate::pbo::hash::PBOHash;
+use crate::pbo::hashing::hash::PBOHash;
 use crate::sign::signature::BiSignature;
 use anyhow::{Context, Error, Result};
 use binrw::{BinRead, BinWrite, NullString};

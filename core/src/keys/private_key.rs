@@ -1,7 +1,7 @@
 use crate::keys::authority::Authority;
 use crate::keys::public_key::BIPublicKey;
 use crate::{
-    pbo::{handle::PBOHandle, hash::PBOHash},
+    pbo::handle::PBOHandle,
     sign::{signature::BiSignature, version::BISignVersion},
 };
 use anyhow::{Context, Error, Result};
@@ -12,6 +12,7 @@ use rsa::{
     BigUint, RsaPrivateKey,
 };
 use std::io::{Read, Seek, Write};
+use crate::pbo::hashing::hash::PBOHash;
 
 #[derive(Debug, Clone)]
 pub struct BIPrivateKey {
